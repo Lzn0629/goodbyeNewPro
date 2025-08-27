@@ -30,5 +30,5 @@ def tag_collect_toggle(request, tag):
 def my_tags_collected(request):
     tag_ids = TagCollect.objects.filter(user=request.user).values_list('tag_id', flat=True)
 
-    shops = Tag.objects.filter(id__in=tag_ids)
+    tags = Tag.objects.filter(id__in=tag_ids)
     return render(request, 'tag_collect.html', locals())
