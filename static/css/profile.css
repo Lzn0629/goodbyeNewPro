@@ -241,13 +241,10 @@ body {
    自我介紹
 ========================= */
 
-
 .profile-info {
     display: flex;
     flex-direction: column;
 }
-
-
 
 .profile-bio {
     font-size: 0.95rem;
@@ -266,6 +263,75 @@ body {
         gap: 8px;
     }
 }
+
+/* =========================
+   評論
+========================= */
+/* 評論清單 */
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* 評論卡片 */
+.review-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 15px 20px;
+}
+
+/* 頭像 + 名字 + 星數 */
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 使用者資訊 */
+.review-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.review-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+
+.review-username {
+    font-weight: bold;
+    color: #333;
+}
+
+/* 星星 */
+.review-stars {
+    color: #f5c518; /* 金黃色 */
+    font-size: 16px;
+}
+
+/* 評論文字 */
+.review-body {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #444;
+}
+
+/* 時間 */
+.review-footer {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #888;
+}
+
+
+
 
 /* =========================
    RWD 響應式調整
