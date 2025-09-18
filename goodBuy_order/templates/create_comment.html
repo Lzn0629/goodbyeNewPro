@@ -19,7 +19,7 @@
           {{ form.as_p }}
 
           <div class="button-group">
-              <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">取消</a>
+              <a href="/orders/order/{{ order.id }}/" class="btn btn-secondary">取消</a>
               <button type="submit" class="btn btn-primary">送出評論</button>
           </div>
       </form>
