@@ -5,7 +5,6 @@ from django.db.models import Q, Case, When, IntegerField
 import math
 import random
 
-from goodBuy_shop.models.shop_recommendation_history import ShopRecommendationHistory
 from goodBuy_want.models import (
     Want, WantFootprints, WantBack, WantRecommendationHistory
 )
@@ -13,11 +12,8 @@ from goodBuy_web.models import SearchHistory
 from goodBuy_web.utils import get_blocked_user_ids
 from goodBuy_want.hot_rank import get_hot_wants
 from goodBuy_want.recommend_config import (
-    PERSONAL_WEIGHTS,
-    KEYWORD_SCORES,
-    RECOMMENDED_WANT_WEIGHT_MULTIPLIER,
-    SEARCH_HISTORY_DAYS, VIEW_DAYS, REPLY_DAYS,
-    NEW_DAYS, RECENT_RECO_DAYS
+    PERSONAL_WEIGHTS, KEYWORD_SCORES, RECOMMENDED_WANT_WEIGHT_MULTIPLIER,
+    SEARCH_HISTORY_DAYS, VIEW_DAYS, REPLY_DAYS, NEW_DAYS, RECENT_RECO_DAYS
 )
 
 def personalized_want_recommendation(
@@ -240,57 +236,58 @@ def personalized_want_recommendation(
         picked = []
 
         # ===== 探索池（最近更新 & 公開；排黑名單與自己）=====
-        explore_qs = (Want.objects.filter(permission__id=1)
-                      .exclude(user_id__in=blocked_ids)
-                      .exclude(user=user)
-                      .filter(Q(update__gte=now - timedelta(days=NEW_DAYS)))
-                      .order_by('-update')
-                      .values_list('id', flat=True)[:300])
-        explore_ids = [wid for wid in explore_qs if wid not in pool]
-        novel_ids = [wid for wid in explore_ids
-                     if (wid not in viewed_ids and wid not in replied_ids and wid not in recent_reco_ids)]
+        if is_homefeed and explore_ratio and explore_ratio > 0:
+            explore_qs = (Want.objects.filter(permission__id=1)
+                        .exclude(user_id__in=blocked_ids)
+                        .exclude(user=user)
+                        .filter(Q(update__gte=now - timedelta(days=NEW_DAYS)))
+                        .order_by('-update')
+                        .values_list('id', flat=True)[:300])
+            explore_ids = [wid for wid in explore_qs if wid not in pool]
+            novel_ids = [wid for wid in explore_ids
+                        if (wid not in viewed_ids and wid not in replied_ids and wid not in recent_reco_ids)]
 
-        # 用 explore_ratio 決定探索保底名額（20%~50%）
-        explore_min_pick = max(1, round(L * min(0.5, max(0.2, explore_ratio))))
-        explore_pool = (novel_ids or explore_ids)[:max(1, min(200, explore_min_pick))]
+            # 用 explore_ratio 決定探索保底名額（20%~50%）
+            explore_min_pick = max(1, round(L * min(0.5, max(0.2, explore_ratio))))
+            explore_pool = (novel_ids or explore_ids)[:max(1, min(200, explore_min_pick))]
 
-        # 先抽探索名額（均勻、無放回）
-        exp_candidates = explore_pool[:]
-        while exp_candidates and len(picked) < explore_min_pick:
-            idx = rng.randrange(len(exp_candidates))
-            picked.append(exp_candidates.pop(idx))
+            # 先抽探索名額（均勻、無放回）
+            exp_candidates = explore_pool[:]
+            while exp_candidates and len(picked) < explore_min_pick:
+                idx = rng.randrange(len(exp_candidates))
+                picked.append(exp_candidates.pop(idx))
 
-        # 再抽個人化名額（依 probs、無放回）
-        remaining_L = L - len(picked)
-        if remaining_L > 0 and pool:
-            chosen = set(picked)
-            wid2prob = {wid: p for wid, p in zip(pool, probs)}
-            candidates = [wid for wid in pool if wid not in chosen]
-            weights = [wid2prob.get(wid, 0.0) for wid in candidates]
+            # 再抽個人化名額（依 probs、無放回）
+            remaining_L = L - len(picked)
+            if remaining_L > 0 and pool:
+                chosen = set(picked)
+                wid2prob = {wid: p for wid, p in zip(pool, probs)}
+                candidates = [wid for wid in pool if wid not in chosen]
+                weights = [wid2prob.get(wid, 0.0) for wid in candidates]
 
-            for _ in range(min(remaining_L, len(candidates))):
-                total = sum(weights)
-                if total <= 0:
-                    idx = rng.randrange(len(candidates))
-                else:
-                    r, acc, idx = rng.uniform(0, total), 0.0, 0
-                    for i, w in enumerate(weights):
-                        acc += w
-                        if r <= acc:
-                            idx = i
-                            break
-                picked.append(candidates[idx])
-                candidates.pop(idx)
-                weights.pop(idx)
+                for _ in range(min(remaining_L, len(candidates))):
+                    total = sum(weights)
+                    if total <= 0:
+                        idx = rng.randrange(len(candidates))
+                    else:
+                        r, acc, idx = rng.uniform(0, total), 0.0, 0
+                        for i, w in enumerate(weights):
+                            acc += w
+                            if r <= acc:
+                                idx = i
+                                break
+                    picked.append(candidates[idx])
+                    candidates.pop(idx)
+                    weights.pop(idx)
 
-        # 不足名額只在首頁用熱榜補（且避開近期已推薦）
-        if len(picked) < L and is_homefeed:
-            need = L - len(picked)
-            already = set(picked)
-            hot = (get_hot_wants(request=request)
-                   .exclude(id__in=already | recent_reco_ids)
-                   .values_list('id', flat=True))
-            picked += list(hot)[:need]
+            # 不足名額只在首頁用熱榜補（且避開近期已推薦）
+            if len(picked) < L:
+                need = L - len(picked)
+                already = set(picked)
+                hot = (get_hot_wants(request=request)
+                    .exclude(id__in=already | recent_reco_ids)
+                    .values_list('id', flat=True))
+                picked += list(hot)[:need]
 
         # 最終穩定排序（分數 + update 作為 tie-break）
         if picked:
