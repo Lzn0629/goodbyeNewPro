@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <title>{{ profile_user.username }} 的個人主頁</title>
-  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-  <link rel="stylesheet" href="{% static 'css/card.css' %}">   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+  <link rel="stylesheet" href="{% static 'css/card.css' %}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -18,28 +18,24 @@
       {% if tab == 'shops' %}賣場{% else %}收物文{% endif %}：
     </div>
 
-    <div class="row g-4">
+    <div class="row g-3 g-md-4">
       {% if tab == 'shops' %}
         {% for shop in items %}
-          <div class="col-6 col-md-3 d-flex justify-content-center">
-            <a href="{% url 'shop' shop.id %}" 
+          <div class="col-6 col-sm-4 col-md-3 d-flex justify-content-center">
+            <a href="{% url 'shop' shop.id %}"
               class="text-decoration-none post-card-link">
               {% include 'common/card_item.html' with type='sell' shop=shop %}
             </a>
           </div>
-        {% empty %}
-          <div class="col-12 text-muted">目前沒有賣場</div>
         {% endfor %}
       {% else %}
         {% for want in items %}
-          <div class="col-6 col-md-3 d-flex justify-content-center">
-            <a href="{% url 'want_detail' want.id %}" 
+          <div class="col-6 col-sm-4 col-md-3 d-flex justify-content-center">
+            <a href="{% url 'want_detail' want.id %}"
               class="text-decoration-none post-card-link">
               {% include 'common/card_item.html' with type='want' want=want %}
             </a>
           </div>
-        {% empty %}
-          <div class="col-12 text-muted">目前沒有收物文</div>
         {% endfor %}
       {% endif %}
     </div>

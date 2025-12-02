@@ -11,15 +11,13 @@ body {
    個人資訊區
 ========================= */
 .profile-container2{
-
-    max-width: none;
-    margin: 130px auto 30px; /* 外面的上方 底部*/
-    margin-left: 200px;
-    margin-right: 200px;
-    padding: 20px 32px;
-    border-radius: 10px;
-    text-align: left;
+  max-width: 1240px;          /* 跟 .profile-container 一樣寬 */
+  margin: 130px auto 30px;    /* 置中就好，不要再另外 left/right 200px */
+  padding: 20px 32px;
+  border-radius: 10px;
+  text-align: left;
 }
+
 .profile-header {
     display: block; 
     max-width: none;
@@ -401,4 +399,3 @@ body { overflow-x: hidden; }
 .ava-n {
   margin-top: 10px !important;
 }
-
