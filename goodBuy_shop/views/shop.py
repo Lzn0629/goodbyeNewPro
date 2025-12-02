@@ -132,7 +132,7 @@ def edit_shop(request, shop):
 
     if request.method == 'POST':
         if form.is_valid():
-            shop = form.save(commit=False)
+            shop = form.save(commit=True)
             shop.update = timezone.now()
             shop.save()
 
