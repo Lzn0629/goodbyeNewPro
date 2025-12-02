@@ -1,20 +1,18 @@
-body{
-  margin-top: 10px;
-}
-
 .checkout-steps-wrapper {
+  margin-top: 0;
   margin-bottom: 5px;
 }
 
-/* 置中 + 限寬 */
+/* 桌機版步驟條 */
 .checkout-steps {
   max-width: 800px;
   width: 100%;
-  margin: 0 auto;              /* ← 置中，取代原來的 margin-left:400px */
-  justify-content: center;     /* 讓步驟本身也在中間 */
-  gap: 12px;                   /* 步驟與箭頭間距 */
-  font-size: 32px;
+  margin: 0 auto;
+  justify-content: center;
+  gap: 12px;
+  font-size: 28px;           /* 原本 32，稍微收斂一點 */
   font-weight: 800;
+  margin-top: 50px;
 }
 
 .checkout-steps .step {
@@ -30,4 +28,24 @@ body{
 .checkout-steps .arrow {
   margin: 0 10px;
   color: #ccc;
+}
+
+/* ---- 手機統一樣式 ---- */
+@media (max-width: 768px) {
+  .checkout-steps {
+    font-size: 1.1rem;       /* 手機版比你現在看到的再大一點 */
+    gap: 6px;
+    flex-wrap: wrap;         /* 「付款方式及寄送資訊」太長可以換行，不會亂掉 */
+    text-align: center;
+  }
+
+  .checkout-steps .step {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-steps {
+    font-size: 1rem;
+  }
 }
