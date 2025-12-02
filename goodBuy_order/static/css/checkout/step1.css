@@ -1,40 +1,9 @@
 /* checkout_step1.css */
-/* 整個容器外框 */
 body{
     background: #FDF7EC !important;
-    padding: 150px; /* 這行保證 header 不會擋到內容！ */
-}
-
-.checkout-steps .step {
-  color: #888;
-}
-
-.checkout-steps .step.active {
-  color: #000;
-  font-weight: bold;
-}
-
-.checkout-steps .arrow {
-  color: #aaa;
-}
-
-.checkout-steps {
-  font-weight: bold;
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-}
-
-.checkout-steps div {
-  flex: 1;
-  text-align: center;
-}
-
-.checkout-steps .text-dark {
-  color: #000;
-}
-
-.checkout-steps .text-muted {
-  color: #bbb;
+    margin: 0;
+    padding-top: 110px;          /* header 高度 */
+    font-family: "Microsoft JhengHei", sans-serif;
 }
 
 .confirm-card {

@@ -132,7 +132,7 @@ def edit_shop(request, shop):
 
     if request.method == 'POST':
         if form.is_valid():
-            shop = form.save(commit=False)
+            shop = form.save(commit=True)
             shop.update = timezone.now()
             shop.save()
 
@@ -241,7 +241,7 @@ def deleteShop(request, shop):
     has_unfinished_orders = Order.objects.filter(shop=shop, order_state__in=[1,2,3,4,5]).exists()
 
     if has_unfinished_orders:
-        messages.error(request, '賣場有未完成訂單，無法刪除。請先當前訂單。')
+        messages.error(request, '賣場有未完成訂單，無法刪除。請先完成當前訂單。')
         return redirect('shop', shop_id=shop.id)
 
     shop.permission = Permission.objects.get(id=3)

@@ -126,22 +126,27 @@
 
             <!-- 寄送地址 -->
             <div class="section">
-                <div class="section-header">寄送地址：</div>
-                <div class="section-body">
-                    <div class="form-group grid-align">
-                        <label for="address_city">縣市：</label>
-                        <select name="address_city" id="address_city">
-                            {% for key, val in city_choices %}
-                                <option value="{{ key }}" {% if key == user_address.city %}selected{% endif %}>{{ val }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group grid-align">
-                        <label for="address_detail">地址：</label>
-                        <input type="text" name="address_detail" id="address_detail" value="{{ user_address.address }}">
-                        {% include "common/field_error.html" with field=addr_form.address %}
-                    </div>
+            <div class="section-header">寄送地址：</div>
+            <div class="section-body">
+                <div class="form-group grid-align">
+                <label for="address_city">縣市：</label>
+                <select name="address_city" id="address_city">
+                    {% for key, val in city_choices %}
+                    <option value="{{ key }}"
+                            {% if key == addr_form.city.value %}selected{% endif %}>
+                        {{ val }}
+                    </option>
+                    {% endfor %}
+                </select>
                 </div>
+
+                <div class="form-group grid-align">
+                <label for="address_detail">地址：</label>
+                <input type="text" name="address_detail" id="address_detail"
+                        value="{{ addr_form.address.value|default:'' }}">
+                {% include "common/field_error.html" with field=addr_form.address %}
+                </div>
+            </div>
             </div>
 
 
