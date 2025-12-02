@@ -211,23 +211,28 @@ def editProfile(request):
             city = addr_form.cleaned_data.get("city") or ""
             address_detail = addr_form.cleaned_data.get("address") or ""
 
-            address, created = UserAddress.objects.get_or_create(
-                user=user,
-                is_delete=False,
-                defaults={
-                    "name": name,
-                    "phone": phone,
-                    "city": city,
-                    "address": address_detail
-                }
-            )
-            if not created:
+            # 先抓一筆現有的未刪除地址
+            address_qs = UserAddress.active.filter(user=user)
+            address = address_qs.order_by("id").first()
+
+            if address:
+                # 更新這一筆
                 address.name = name
                 address.phone = phone
                 address.city = city
                 address.address = address_detail
+                address.is_delete = False
                 address.save()
-
+            else:
+                # 完全沒有才新建
+                UserAddress.objects.create(
+                    user=user,
+                    name=name,
+                    phone=phone,
+                    city=city,
+                    address=address_detail,
+                    is_delete=False,
+                )
         messages.success(request, "已更新個人資料")
         return redirect("editprofile")
 
