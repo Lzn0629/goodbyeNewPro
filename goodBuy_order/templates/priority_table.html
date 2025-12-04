@@ -37,7 +37,7 @@
                                 <td class="{% if priority_mode == 'amount' %}highlight-pink{% else %}highlight-gray{% endif %}">{{ buyer.total_amount }}</td>
                                 <td class="{% if priority_mode == 'quantity' %}highlight-pink{% else %}highlight-gray{% endif %}">{{ buyer.total_qty }}</td>
                                 {% for product in product_list %}
-                                    <td>{{ buyer.product_quantities|get_item:product.id|default:0 }}</td>
+                                    <td>{{ buyer.product_quantities|get_item:product.id|default:"-" }}</td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}               
