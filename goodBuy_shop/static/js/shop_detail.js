@@ -47,4 +47,59 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
         });
     });
+
+// === 新增：商店複製按鈕 ===
+  const copyBtn = document.querySelector('.js-copy-shop');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function (e) {
+      e.preventDefault();  // 先阻止預設跳轉，成功/失敗再決定要不要跳轉
+
+      const url = this.dataset.url;
+      if (!url) {
+        alert('找不到複製連結');
+        return;
+      }
+
+      fetch(url, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.ok) {
+          alert(data.error || '複製失敗，請稍後再試');
+          return;
+        }
+
+        const text = data.text || '';
+        return navigator.clipboard.writeText(text)
+          .then(() => {
+                window.location.href = window.location.href;  
+          })
+          .catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.top = '-9999px';
+            document.body.appendChild(ta);
+
+            ta.select();
+            try {
+              document.execCommand('copy');
+              window.location.href = window.location.href;  
+            } catch (err) {
+              alert('複製失敗，請手動長按貼上區塊複製。');
+            }
+            document.body.removeChild(ta);
+          });
+      })
+      .catch(() => {
+        alert('連線失敗，請稍後再試');
+        // 也可以在這裡 fallback 回原本的跳轉
+        // window.location.href = copyBtn.href;
+      });
+    });
+  }
 });
