@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import *
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.urls import reverse
 
 from goodBuy_shop.models import *
@@ -216,6 +216,61 @@ def shopByPermissionId(request, permission_id):
 商品介紹
 該商店網址
 '''
+# @login_required(login_url='login')
+# def copy_shop_info(request, shop_id):
+#     shop = get_object_or_404(
+#         Shop._base_manager.select_related('purchase_priority', 'shop_state', 'permission'),
+#         pk=shop_id
+#     )
+
+#     # 僅限擁有者
+#     if shop.owner_id != request.user.id:
+#         messages.error(request, "複製失敗，只有商店擁有者可以操作")
+#         return redirect('shop', shop_id=shop.id)
+
+#     try:
+#         # header
+#         priority_text = (shop.purchase_priority.name or '').strip()
+#         state_text = '現貨' if '現貨' in (shop.shop_state.name or '') else '非現貨'
+#         tag_names = Tag.objects.filter(shoptag__shop=shop).values_list('name', flat=True)
+#         tags_text = " ".join(f"#{t}" for t in tag_names) if tag_names else ""
+#         header_line = f"#{priority_text} #{state_text}"
+#         if tags_text:
+#             header_line = f"{header_line} {tags_text}"
+
+#         # 商品列表
+#         products = Product.objects.filter(shop=shop).order_by('id')
+#         product_lines = [
+#             f"{p.name} - 數量{max(int(p.stock or 0), 0)} - 價格{int(p.price)}"
+#             for p in products
+#         ]
+
+#         # 商店網址
+#         shop_url = request.build_absolute_uri(reverse('shop', kwargs={'shop_id': shop.id}))
+
+#         # 組合文字
+#         lines = [
+#             header_line,
+#             f"商店：{shop.name}",
+#             *product_lines,
+#             "",
+#             (shop.introduce or "").strip(),
+#             "",
+#             "快來GoodBuy逛逛吧！",
+#             shop_url,
+#         ]
+#         text = "\n".join(lines).strip() + "\n"
+
+#         # 存進 session，方便你在前端需要的地方再取出
+#         request.session['copied_shop_info'] = text
+
+#         messages.success(request, "商店資訊複製成功")
+#     except Exception as e:
+#         messages.error(request, f"複製失敗，請再試一次：{e}")
+
+#     # 無論成功或失敗，都回到商店詳情頁
+#     return redirect('shop', shop_id=shop.id)
+
 @login_required(login_url='login')
 def copy_shop_info(request, shop_id):
     shop = get_object_or_404(
@@ -223,13 +278,13 @@ def copy_shop_info(request, shop_id):
         pk=shop_id
     )
 
-    # 僅限擁有者
     if shop.owner_id != request.user.id:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': '只有商店擁有者可以操作'}, status=403)
         messages.error(request, "複製失敗，只有商店擁有者可以操作")
         return redirect('shop', shop_id=shop.id)
 
     try:
-        # header
         priority_text = (shop.purchase_priority.name or '').strip()
         state_text = '現貨' if '現貨' in (shop.shop_state.name or '') else '非現貨'
         tag_names = Tag.objects.filter(shoptag__shop=shop).values_list('name', flat=True)
@@ -238,17 +293,14 @@ def copy_shop_info(request, shop_id):
         if tags_text:
             header_line = f"{header_line} {tags_text}"
 
-        # 商品列表
         products = Product.objects.filter(shop=shop).order_by('id')
         product_lines = [
             f"{p.name} - 數量{max(int(p.stock or 0), 0)} - 價格{int(p.price)}"
             for p in products
         ]
 
-        # 商店網址
         shop_url = request.build_absolute_uri(reverse('shop', kwargs={'shop_id': shop.id}))
 
-        # 組合文字
         lines = [
             header_line,
             f"商店：{shop.name}",
@@ -260,13 +312,17 @@ def copy_shop_info(request, shop_id):
             shop_url,
         ]
         text = "\n".join(lines).strip() + "\n"
-
-        # 存進 session，方便你在前端需要的地方再取出
-        request.session['copied_shop_info'] = text
-
         messages.success(request, "商店資訊複製成功")
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'text': text})
+
+        request.session['copied_shop_info'] = text
+        return redirect('shop', shop_id=shop.id)
+
     except Exception as e:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'error': f'複製失敗，請再試一次：{e}'}, status=500)
         messages.error(request, f"複製失敗，請再試一次：{e}")
 
-    # 無論成功或失敗，都回到商店詳情頁
     return redirect('shop', shop_id=shop.id)
