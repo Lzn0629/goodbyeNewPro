@@ -69,18 +69,18 @@ def correct_full_image_perspective(img):
     ])
 
     M = cv2.getPerspectiveTransform(src_pts, dst_pts)
-    corrected = cv2.warpPerspective(img, M, (w, h))
+    orig = cv2.warpPerspective(img, M, (w, h))
 
-    return corrected
+    return orig
 
 def crop_detected_objects(image_path, output_folder):
     orig = cv2.imread(image_path)
 
     # 這裡改為整張圖矯正（關鍵）
-    corrected = correct_full_image_perspective(orig)
+    # corrected = correct_full_image_perspective(orig)
 
     # 用矯正後的影像做 YOLO 偵測（非常重要）
-    results = model(corrected)[0]
+    results = model(orig)[0]
 
     os.makedirs(output_folder, exist_ok=True)
     cropped_paths = []
@@ -90,7 +90,7 @@ def crop_detected_objects(image_path, output_folder):
         cls_id = int(box.cls[0])
         label = results.names[cls_id]
 
-        cropped = corrected[y1:y2, x1:x2]
+        cropped = orig[y1:y2, x1:x2]
         if cropped.size == 0:
             continue
 
