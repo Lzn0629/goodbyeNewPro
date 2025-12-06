@@ -10,9 +10,10 @@ HOT_WEIGHTS = {
 # 個性化 Want 推薦權重
 # -------------------------
 PERSONAL_WEIGHTS = {
-    'search_keyword': 9,              # 搜尋意圖最強，權重拉高
+    'search_keyword': 4,              # 搜尋意圖最強，權重拉高
     'viewed_related_multiplier': 0.6, # 看過=弱意圖，避免蓋過搜尋/回覆
     'replied_related_bonus': 3,       # 回覆過=中強意圖
+    "followed_tag_bonus": 40,
 }
 
 # -------------------------

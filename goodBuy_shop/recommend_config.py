@@ -11,11 +11,12 @@ HOT_WEIGHTS = {
 # 個性化推薦權重
 # -------------------------
 PERSONAL_WEIGHTS = {
-    'search_keyword': 9,               # 搜尋關鍵字 → 強烈意圖
-    'viewed_related_multiplier': 0.6,  # 瀏覽過 → 弱意圖
-    'traded_shop_bonus': 2.5,           # 曾購買過 → 高信任
+    'search_keyword': 4,               # 搜尋關鍵字 → 強烈意圖
+    'viewed_related_multiplier': 0.5,  # 瀏覽過 → 弱意圖
+    'traded_shop_bonus': 3.0,           # 曾購買過 → 高信任
     'collected_shop_bonus': 1.8,        # 收藏過 → 中等意圖
-    'new_shop_bonus': 0.8,       # 新店曝光 → 冷啟動幫助
+    'new_shop_bonus': 0.6,       # 新店曝光 → 冷啟動幫助
+    "followed_tag_bonus": 40,
 }
 
 # -------------------------
